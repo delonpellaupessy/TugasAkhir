@@ -7,9 +7,24 @@ use App\Http\Controllers\CheckoutController;
 
 use Illuminate\Http\Request;
 
-class paymentController extends Controller
+class PaymentController extends Controller
 {
-    public function notifications(Request $request){
+    public function notification(Request $request){
         dd($request);
+    }
+
+    public function completed(Request $request)
+    {
+        # code...
+    }
+
+    public function unfinish(Request $request)
+    {
+        # code...
+    }
+
+    public function failed(Request $request)
+    {
+        # code...
     }
 }
