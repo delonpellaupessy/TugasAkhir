@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\TransactionDetail;
+use Facade\FlareClient\Http\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -19,7 +20,7 @@ class DashboardTransactionController extends Controller
                         ->whereHas('transaction', function($transaction){
                             $transaction->where('users_id', Auth::user()->id);
                         });
-        
+
         return view('pages.dashboard-transactions',[
             'sellTransactions' => $sellTransactions->get(),
             'buyTransactions' => $buyTransactions->get(),
@@ -30,7 +31,7 @@ class DashboardTransactionController extends Controller
     {
         $transaction = TransactionDetail::with(['transaction.user', 'product.galleries'])
                         ->findOrFail($id);
-        
+
         return view('pages.dashboard-transactions-details',[
             'transaction' => $transaction
         ]);
@@ -43,6 +44,10 @@ class DashboardTransactionController extends Controller
         $item = TransactionDetail::findOrFail($id);
 
         $item->update($data);
+
+        if($request->wantsJson()){
+            return response()->json($item, 200);
+        }
 
         return redirect()->route('dashboard-transaction-details', $id);
     }
