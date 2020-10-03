@@ -51,8 +51,10 @@
                               </div>
                               <div class="col-12 col-md-6">
                                 <div class="product-title">Payment Status</div>
-                                <div class="product-subtitle text-danger">
-                                  {{ $transaction->shipping_status }}
+                                <div class="product-subtitle">
+                                    <span class="badge" :class="transactionClass">
+                                        {{ $transaction->transaction->transaction_status }}
+                                    </span>
                                 </div>
                               </div>
                               <div class="col-12 col-md-6">
@@ -73,7 +75,7 @@
                             <h5>
                               Shipping Informations
                             </h5>
-                            <form action="{{ route('dashboard-transaction-update', $transaction->id) }}" method="POST" enctype="multipart/form-data">
+                            <form @submit.prevent="onSubmit" action="{{ route('dashboard-transaction-update', $transaction->id) }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             <div class="row">
                               <div class="col-12 col-md-12">
@@ -114,43 +116,52 @@
                               </div>
                               <div class="col-12">
                                 <div class="row">
-                                  <div class="col-md-3">
-                                    <div class="product-title">Shipping Status</div>
-                                    <select
-                                      name="shipping_status"
-                                      id="status"
-                                      class="form-control"
-                                      v-model="status"
-                                    >
-                                      <option value="PENDING">Pending</option>
-                                      <option value="SHIPPING">Shipping</option>
-                                      <option value="SUCCESS">Success</option>
-                                    </select>
-                                  </div>
-                                  <template v-if="status == 'SHIPPING'">
-                                    <div class="col-md-3">
-                                      <div class="product-title">
-                                        Input Resi
-                                      </div>
-                                      <input
-                                        class="form-control"
-                                        type="text"
-                                        name="resi"
-                                        id="openStoreTrue"
-                                        v-model="resi"
-                                      />
-                                    </div>
-                                    <div class="col-md-2">
-                                      <button
-                                        type="submit"
-                                        class="btn btn-success btn-block mt-4"
-                                      >
-                                        Update Resi
-                                      </button>
-                                    </div>
-                                  </template>
+                                    @if($transaction->transaction->user->id == Auth::id())
+                                        <div class="col-md-3">
+                                            <div class="product-title">Shipping Status</div>
+                                            <div class="product-subtitle" :class="shipmentClass">
+                                                {{ $transaction->shipping_status }}
+                                            </div>
+                                        </div>
+                                    @else
+                                        <div class="col-md-3">
+                                            <div class="product-title">Shipping Status</div>
+                                            <select
+                                            name="shipping_status"
+                                            id="status"
+                                            class="form-control"
+                                            v-model="status">                                    >
+                                            <option value="PENDING">Pending</option>
+                                            <option value="SHIPPING">Shipping</option>
+                                            <option value="SUCCESS">Success</option>
+                                            </select>
+                                        </div>
+                                        <template v-if="status == 'SHIPPING'">
+                                            <div class="col-md-3">
+                                            <div class="product-title">
+                                                Input Resi
+                                            </div>
+                                            <input
+                                                class="form-control"
+                                                type="text"
+                                                name="resi"
+                                                id="openStoreTrue"
+                                                v-model="resi"
+                                            />
+                                            </div>
+                                            <div class="col-md-2">
+                                            <button
+                                                type="submit"
+                                                class="btn btn-success btn-block mt-4"
+                                            >
+                                                Update Resi
+                                            </button>
+                                            </div>
+                                        </template>
+                                    @endif
                                 </div>
                               </div>
+
                             </div>
                             <div class="row mt-4">
                               <div class="col-12 text-right">
@@ -175,6 +186,8 @@
 @endsection
 
 @push('addon-script')
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
     <script src="/vendor/vue/vue.js"></script>
     <script>
       var transactionDetails = new Vue({
@@ -182,7 +195,44 @@
         data: {
           status: "{{ $transaction->shipping_status }}",
           resi: "{{ $transaction->resi }}",
+          transaction: "{{ $transaction->transaction->transaction_status }}",
+          url: "{{ Request::url() }}"
         },
+        computed: {
+            shipmentClass() {
+                if (this.status == "SUCCESS") {
+                    return "text-succes"
+                } else if(this.status == "SHIPPING"){
+                    return "text-warning"
+                } else {
+                    return "text-danger"
+                }
+            },
+            transactionClass() {
+                if (this.transaction == "PAID") {
+                    return "badge-success"
+                } else if(this.transaction == "PENDING"){
+                    return "badge-warning"
+                } else {
+                    return "badge-danger"
+                }
+            }
+        },
+        methods: {
+            onSubmit() {
+                axios.post(this.url, {shipping_status: this.status, resi: this.resi})
+                .then(resp => {
+                    if (resp.status == 200) {
+                        Swal.fire('Success!', 'Shipment status updated', 'success')
+                    }
+                    this.status = resp.data.shipping_status
+                })
+                .catch(error => {
+                    Swal.fire('Error!', 'Something wrong, check the log', 'error')
+                    console.log(error)
+                })
+            }
+        }
       });
     </script>
 @endpush
