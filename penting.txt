@@ -1,0 +1,6 @@
+delon@gmail.com = 123456789 admin
+don@gmail.com user yg biasa login 15121997d
+dpellaupessy1@gmail.com 12345678 admin
+
+admin-bpungpass
+reiza-arianto-tamu= 12345678

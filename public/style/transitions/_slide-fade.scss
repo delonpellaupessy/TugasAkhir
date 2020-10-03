@@ -1,0 +1,9 @@
+.slide-fade-enter-active {
+  transition: all 0.2s ease;
+}
+
+.slide-fade-enter,
+.slide-fade-leave-to {
+  transform: translatey(10px);
+  opacity: 0.5;
+}
