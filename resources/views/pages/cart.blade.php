@@ -200,21 +200,50 @@
 @endsection
 
 @push('addon-script')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
     <script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ env('MIDTRANS_CLIENT_KEY') }}"></script>
     <script>
       $(document).ready(function () {
         $("#locations").submit(function (e) {
           e.preventDefault();
-          $.ajax({
-            type: "POST",
-            url: "{{ route('checkout-ajax') }}",
-            data: $(this).serialize(),
-            dataType: "Json",
-            success: function (response) {
-              console.log(response)
-
+          // alert confirmation
+          Swal.fire({
+            title: 'Checkout now?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, checkout!',
+          }).then((result) => {
+            // Yes, checkout
+            if(result.isConfirmed) {
+              // show loading
+              Swal.fire({
+                  title: 'Please Wait !',
+                  text: 'Processing your transaction...',
+                  allowOutsideClick: false,
+                  willOpen: () => {
+                      Swal.showLoading()
+                  },
+              });
+              // process ajax transaction
+              setTimeout(() => {
+                showAlert('pending')
+              }, 5000);
             }
-          });
+          })
+
+          // $.ajax({
+          //   type: "POST",
+          //   url: "{{ route('checkout-ajax') }}",
+          //   data: $(this).serialize(),
+          //   dataType: "Json",
+          //   success: function (response) {
+          //     console.log(response)
+
+          //   }
+          // });
         });
 
         function process(token) {
@@ -224,6 +253,52 @@
             onError: function(result){console.log('error');console.log(result);},
             onClose: function(){console.log('customer closed the popup without finishing the payment');}
           })
+        }
+
+        function showAlert(status) {
+          switch (status) {
+            case "success":
+                Swal.fire({
+                  title: 'Success!',
+                  text: "Your payment is successfully paid",
+                  icon: 'success',
+                  allowOutsideClick: 'false',
+                  confirmButtonText: 'Back to Dashboard',
+                }).then((result) => {
+                  if (result.isConfirmed) {
+                    window.location.href = "/dashboard";
+                  }
+                })
+              break;
+            case "pending":
+                Swal.fire({
+                  title: 'Success!',
+                  text: "Transaction created. Waiting for your payment.",
+                  icon: 'success',
+                  allowOutsideClick: 'false',
+                  confirmButtonText: 'Back to Dashboard',
+                }).then((result) => {
+                  if (result.isConfirmed) {
+                    window.location.href = "/dashboard";
+                  }
+                })
+              break;
+            case "error":
+                Swal.fire({
+                  title: 'Error!',
+                  text: "Your payment has failed",
+                  icon: 'error',
+                  allowOutsideClick: 'false',
+                  confirmButtonText: 'Back to Dashboard',
+                }).then((result) => {
+                  if (result.isConfirmed) {
+                    window.location.href = "/dashboard";
+                  }
+                })
+              break;
+            default:
+              break;
+          }
         }
       });
     </script>
