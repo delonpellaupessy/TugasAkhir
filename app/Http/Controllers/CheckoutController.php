@@ -46,10 +46,10 @@ class CheckoutController extends Controller
                 'products_id' => $cart->product->id,
                 'price' => $cart->product->price,
                 'shipping_status' => 'PENDING',
-                'resi' => '',
-                'code' => $trx  
+                'resi' => mt_rand(0000,9999),
+                'code' => $trx
             ]);
-        }     
+        }
 
         //delete cart data
         Cart::where('users_id', Auth::user()->id)->delete();
@@ -79,7 +79,7 @@ class CheckoutController extends Controller
         try {
             // Get Snap Payment Page URL
             $paymentUrl = Snap::createTransaction($midtrans)->redirect_url;
-            
+
             // Redirect to Snap Payment Page
            return redirect($paymentUrl);
         }
@@ -91,6 +91,6 @@ class CheckoutController extends Controller
 
     public function callback (Request $request)
     {
-        
+
     }
 }
