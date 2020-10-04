@@ -228,30 +228,37 @@
                   },
               });
               // process ajax transaction
-              setTimeout(() => {
-                showAlert('pending')
-              }, 5000);
+                $.ajax({
+                  type: "POST",
+                  url: "{{ route('checkout-ajax') }}",
+                  data: $(this).serialize(),
+                  dataType: "Json",
+                  success: function (response) {
+                    console.log(response)
+                    process(response)
+                  }
+                });
             }
           })
-
-          // $.ajax({
-          //   type: "POST",
-          //   url: "{{ route('checkout-ajax') }}",
-          //   data: $(this).serialize(),
-          //   dataType: "Json",
-          //   success: function (response) {
-          //     console.log(response)
-
-          //   }
-          // });
         });
 
         function process(token) {
-          snap.pay(response, {
-            onSuccess: function(result){console.log('success');console.log(result);},
-            onPending: function(result){console.log('pending');console.log(result);},
-            onError: function(result){console.log('error');console.log(result);},
-            onClose: function(){console.log('customer closed the popup without finishing the payment');}
+          snap.pay(token, {
+            onSuccess: function(result){
+              showAlert('success');
+              console.log(result);
+            },
+            onPending: function(result){
+              showAlert('pending');
+              console.log(result);
+            },
+            onError: function(result){
+              showAlert('error');
+              console.log(result);
+            },
+            onClose: function(){
+              console.log('customer closed the popup without finishing the payment');
+            }
           })
         }
 
