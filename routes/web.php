@@ -28,7 +28,7 @@ Route::get('/success', 'CartController@success')->name('success');
 
 Route::get('/register/success', 'Auth\RegisterController@success')->name('register-success');
 
-Route::post('/payments/notifications', 'Auth\paymentsController@notifications')->name('payments-notifications');
+Route::post('/payment/notifications', 'PaymentController@notifications')->name('payments-notifications');
 
 
 
