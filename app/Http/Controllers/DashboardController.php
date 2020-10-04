@@ -17,16 +17,16 @@ class DashboardController extends Controller
                             $product->where('users_id', Auth::user()->id);
                         });
 
-        $revenue = $transactions->get()->reduce(function ($carry, $item){
-            return $carry + $item->price;
-        });
+        // $revenue = $transactions->get()->reduce(function ($carry, $item){
+        //     return $carry + $item->price;
+        // });
 
         $customer = User::count();
-        
+
         return view('pages.dashboard',[
             'transaction_count' => $transactions->count(),
             'transaction_data' => $transactions->get(),
-            'revenue' => $revenue,
+            // 'revenue' => $revenue,
             'customer' => $customer
         ]);
     }
