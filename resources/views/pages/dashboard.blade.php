@@ -46,7 +46,7 @@
                                 <div
                                     class="dashboard-card-subtitle"
                                 >
-                                    Rp.{{ number_format($revenue) }}
+                                    Rp.{{ number_format(Auth::user()->revenue) }}
                                 </div>
                             </div>
                         </div>
